@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:DiceRoller"
+             x:Class="DiceRoller.MainPage"
+             BackgroundColor="{AppThemeBinding Light=#F8F8F6, Dark=#1A1A18}">
+
+    <ContentPage.BindingContext>
+        <local:DiceViewModel />
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24,48,24,32" Spacing="0">
+
+            <!-- Otsikko -->
+            <Label Text="Nopanheitto"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="{AppThemeBinding Light=#1A1A18, Dark=#F0EEE8}"
+                   Margin="0,0,0,4" />
+            <Label Text="Testisovellus"
+                   FontSize="14"
+                   HorizontalOptions="Center"
+                   TextColor="{AppThemeBinding Light=#888780, Dark=#6B6A64}"
+                   Margin="0,0,0,32" />
+
+            <!-- Nopan näyttö -->
+            <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2A}"
+                   BorderColor="{AppThemeBinding Light=#E0DED8, Dark=#3A3A38}"
+                   CornerRadius="16"
+                   Padding="16,24"
+                   Margin="0,0,0,24"
+                   HasShadow="False">
+                <Label Text="{Binding DiceDisplay}"
+                       FontSize="40"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="WordWrap" />
+            </Frame>
+
+            <!-- Tulos-kortit -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,0,0,24">
+                <Frame Grid.Column="0"
+                       BackgroundColor="{AppThemeBinding Light=#EAF3DE, Dark=#1E2E12}"
+                       BorderColor="Transparent"
+                       CornerRadius="12"
+                       Padding="16,14"
+                       HasShadow="False">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Summa"
+                               FontSize="12"
+                               TextColor="{AppThemeBinding Light=#3B6D11, Dark=#97C459}" />
+                        <Label Text="{Binding TotalResult}"
+                               FontSize="28"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#27500A, Dark=#C0DD97}" />
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Column="1"
+                       BackgroundColor="{AppThemeBinding Light=#E6F1FB, Dark=#0C2040}"
+                       BorderColor="Transparent"
+                       CornerRadius="12"
+                       Padding="16,14"
+                       HasShadow="False">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Keskiarvo"
+                               FontSize="12"
+                               TextColor="{AppThemeBinding Light=#185FA5, Dark=#85B7EB}" />
+                        <Label Text="{Binding AverageResult}"
+                               FontSize="28"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#0C447C, Dark=#B5D4F4}" />
+                    </VerticalStackLayout>
+                </Frame>
+            </Grid>
+
+            <!-- Säätimet -->
+            <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2A}"
+                   BorderColor="{AppThemeBinding Light=#E0DED8, Dark=#3A3A38}"
+                   CornerRadius="16"
+                   Padding="16,14"
+                   Margin="0,0,0,16"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="16">
+
+                    <!-- Noppien määrä -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Noppien määrä"
+                                   FontSize="13"
+                                   TextColor="{AppThemeBinding Light=#5F5E5A, Dark=#888780}" />
+                            <Label Text="{Binding DiceCountLabel}"
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#1A1A18, Dark=#F0EEE8}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                    <Slider Minimum="1" Maximum="5" Value="{Binding DiceCount}"
+                            MinimumTrackColor="{AppThemeBinding Light=#1D9E75, Dark=#1D9E75}"
+                            MaximumTrackColor="{AppThemeBinding Light=#D3D1C7, Dark=#444441}"
+                            ThumbColor="{AppThemeBinding Light=#1D9E75, Dark=#5DCAA5}" />
+
+                    <!-- Sivujen määrä -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Sivuja per noppa"
+                                   FontSize="13"
+                                   TextColor="{AppThemeBinding Light=#5F5E5A, Dark=#888780}" />
+                            <Label Text="{Binding SidesLabel}"
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#1A1A18, Dark=#F0EEE8}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                    <Slider Minimum="4" Maximum="20" Value="{Binding Sides}"
+                            MinimumTrackColor="{AppThemeBinding Light=#1D9E75, Dark=#1D9E75}"
+                            MaximumTrackColor="{AppThemeBinding Light=#D3D1C7, Dark=#444441}"
+                            ThumbColor="{AppThemeBinding Light=#1D9E75, Dark=#5DCAA5}" />
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Heittonappi -->
+            <Button Text="Heitä nopat"
+                    Command="{Binding RollCommand}"
+                    IsEnabled="{Binding IsRolling, Converter={StaticResource InvertedBoolConverter}}"
+                    BackgroundColor="{AppThemeBinding Light=#1D9E75, Dark=#0F6E56}"
+                    TextColor="White"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    CornerRadius="12"
+                    HeightRequest="52"
+                    Margin="0,0,0,24" />
+
+            <!-- Historia -->
+            <VerticalStackLayout Spacing="0"
+                                 IsVisible="{Binding History.Count, Converter={StaticResource IntToBoolConverter}}">
+                <Label Text="Edelliset heitot"
+                       FontSize="12"
+                       TextColor="{AppThemeBinding Light=#888780, Dark=#5F5E5A}"
+                       Margin="0,0,0,8" />
+                <CollectionView ItemsSource="{Binding History}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="local:RollHistoryItem">
+                            <Grid ColumnDefinitions="*,Auto"
+                                  Padding="0,6">
+                                <Label Grid.Column="0"
+                                       Text="{Binding Label}"
+                                       FontSize="13"
+                                       TextColor="{AppThemeBinding Light=#5F5E5A, Dark=#888780}" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding SumLabel}"
+                                       FontSize="13"
+                                       FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light=#1A1A18, Dark=#D3D1C7}" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

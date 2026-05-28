@@ -1,0 +1,66 @@
+workflows:
+  ios-testflight:
+    name: iOS TestFlight
+    max_build_duration: 60
+    environment:
+      xcode: latest
+      groups:
+        - ios-credentials
+      vars:
+        BUNDLE_ID: "fi.diceroller.app"
+    scripts:
+      - name: Set up code signing
+        script: |
+          echo $CERTIFICATE_PRIVATE_KEY | base64 --decode > /tmp/cert.p12
+          security create-keychain -p "" build.keychain
+          security import /tmp/cert.p12 -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security list-keychains -d user -s build.keychain
+          security set-keychain-settings -t 3600 --lock-on-sleep build.keychain
+          security unlock-keychain -p "" build.keychain
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+          echo $PROVISIONING_PROFILE | base64 --decode > /tmp/profile.mobileprovision
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          UUID=$(security cms -D -i /tmp/profile.mobileprovision | plutil -extract UUID raw -)
+          cp /tmp/profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
+          echo "=== Installed certificates ==="
+          security find-identity -v -p codesigning
+      - name: Install .NET SDK
+        script: |
+          curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0 --quality ga
+          echo 'export PATH="$HOME/.dotnet:$PATH"' >> $CM_ENV
+          export PATH="$HOME/.dotnet:$PATH"
+          dotnet --version
+      - name: Install .NET MAUI workload
+        script: |
+          export PATH="$HOME/.dotnet:$PATH"
+          dotnet workload install maui-ios maui-android --version 9.0.104
+      - name: Restore NuGet packages
+        script: |
+          export PATH="$HOME/.dotnet:$PATH"
+          dotnet restore DiceRoller.csproj
+      - name: Build iOS app
+        script: |
+          export PATH="$HOME/.dotnet:$PATH"
+          UUID=$(security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision | plutil -extract UUID raw -)
+          echo "Using profile UUID: $UUID"
+          dotnet publish DiceRoller.csproj \
+            -f net9.0-ios \
+            -c Release \
+            -p:RuntimeIdentifier=ios-arm64 \
+            -p:CodesignKey="iPhone Distribution" \
+            -p:CodesignProvision="$UUID" \
+            -o ./artifacts
+    artifacts:
+      - "./artifacts/**/*.ipa"
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
+      email:
+        recipients:
+          - veli.vaisanen@gmail.com
+        notify:
+          success: true
+          failure: true
