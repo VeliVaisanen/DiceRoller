@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Cloud -->
+  <ellipse cx="64" cy="78" rx="38" ry="22" fill="white" opacity="0.95"/>
+  <ellipse cx="48" cy="70" rx="22" ry="18" fill="white" opacity="0.95"/>
+  <ellipse cx="78" cy="66" rx="20" ry="16" fill="white" opacity="0.95"/>
+  <!-- Sun -->
+  <circle cx="84" cy="48" r="14" fill="#FFD700"/>
+</svg>
