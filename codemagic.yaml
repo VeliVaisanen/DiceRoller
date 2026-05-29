@@ -5,7 +5,7 @@ workflows:
     environment:
       xcode: latest
       groups:
-        - ios-credentials
+        - diceroller-credentials
       vars:
         BUNDLE_ID: "fi.diceroller.app"
     scripts:
